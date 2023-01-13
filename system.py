@@ -18,10 +18,10 @@ menu = """
 
   Como podemos te ajudar?
 
-  [d] - Digite 'd' para depositar;
-  [s] - Digite 's' para sacar;
-  [e] - Digite 'e' para ter o extrato;
-  [q] - Digite 'q' para sair do sistema.
+  [d] - Digite 'd' para Depositar;
+  [s] - Digite 's' para Sacar;
+  [e] - Digite 'e' para ter o Extrato;
+  [q] - Digite 'q' para Sair do sistema.
 
 """
 
@@ -93,6 +93,7 @@ while True:
           and (numero_de_saques <= LIMITE_DE_SAQUES_DIA)
           and (valor_saque <= saldo)
           and (aux_saque <= 500)
+          and (valor_saque > 0)
         ):
             saldo = saldo - valor_saque
             numero_de_saques = numero_de_saques + 1
