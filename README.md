@@ -1,10 +1,9 @@
-# Desafio: Criando um sistema bancário
+# Desafio: Criando um sistema bancário - DIO
 
 ## Objetivo Geral
 
 Criar um sistema bancário com as operações: sacar, depositar e visualizar extrato.
 Para a primeira versão do sistema.
-
 
 ## Operação de depósito
 
