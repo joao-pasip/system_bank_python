@@ -1,3 +1,5 @@
+# DEIXANDO A FRUSTRAÇÃO AQUI, NAS TENTATIVAS
+
 # def saque(
 #   *,
 #   func_saldo,
