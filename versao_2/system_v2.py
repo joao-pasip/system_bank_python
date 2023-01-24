@@ -28,6 +28,22 @@ saques = []
 numero_de_saques = 0
 LIMITE_DE_SAQUES_DIA = 3
 
+# usuarios = []
+# contas = []
+
+
+# def criar_usuario(*usuarios):
+#     print("Agradecemos pela preferência em nosso banco! :)")
+#     nome_usuario = input('Qual o seu nome: ')
+#     data_de_nascimento = input('Quando você nasceu (dd/mm/aaaa): ')
+#     cpf = input('Informe o seu CPF (apenas números): ')
+#     endereco = input(
+#       'Informe seu endereço (logradouro, número - bairro - city/state: '
+#     )
+
+
+# def criar_conta(contas, usuario):
+
 
 while True:
     opcao_user = input(menu)

@@ -1,7 +1,7 @@
 from date.func_date_correctly import str_date_time
 
 
-def func_deposito(func_saldo, valor_deposito, extrato, depositos, saques):
+def func_deposito(func_saldo, valor_deposito, extrato, depositos, saques, /):
     depositar = input("Quanto deseja depositar? ")
     valor_deposito = float(depositar)
     saldo = func_saldo(depositos=depositos, saques=saques)
