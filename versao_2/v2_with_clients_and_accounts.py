@@ -28,7 +28,7 @@ menu_after_login = """
   [d] - Digite 'd' para Depositar;
   [s] - Digite 's' para Sacar;
   [e] - Digite 'e' para ter o Extrato;
-  [n] - Digite 'c' para Criar Nova Conta;
+  [n] - Digite 'n' para Criar Nova Conta;
   [q] - Digite 'q' para Sair do sistema.
 
 """
@@ -51,12 +51,19 @@ numero_da_agencia = '0001'
 login_activate = False
 
 
+def func_numero_da_conta(*, contas):
+    numero_da_conta = len(contas)
+    numero_da_conta += 1
+    return numero_da_conta
+
+
 def user_active(*, usuario):
+    # print(f"TESTE: {usuario}")
     user_info = {
-      "nome_do_usuario": usuario['nome_usuario'],
+      "nome_do_usuario": usuario['nome_do_usuario'],
       "data_de_nascimento": usuario['data_de_nascimento'],
       "cpf": usuario['cpf'],
-      "endereço": usuario['endereco']
+      "endereço": usuario['endereço']
     }
     return user_info
 
@@ -69,7 +76,7 @@ def search_user_only(*, usuarios, cpf):
         if user["cpf"] == cpf:
             result_user_only = user
         else:
-            result_user_only = 'Usuário não encontrado'
+            result_user_only = False
     return result_user_only
 
 
@@ -106,16 +113,19 @@ def login(
     user_numero_da_agencia = input('Informe o número da sua agência: ')
     user_numero_da_conta = int(input('Informe o número da sua conta: '))
 
-    # search_only_user = search_user_only(usuarios=usuarios, user_cpf=user_cpf)
-    user_info = search_user_only(usuarios=usuarios, cpf=user_cpf)
-    user_active(usuario=user_info)
-    on_and_off_login(login_activate=login_activate)
+    if len(usuarios) == 0:
+        on_and_off_login(login_activate=True)
+        search_only_account = 'Usuário não encontrado!'
+    else:
+        user_info = search_user_only(usuarios=usuarios, cpf=user_cpf)
+        user_active(usuario=user_info)
+        on_and_off_login(login_activate=login_activate)
 
-    search_only_account = conta_only(
-      contas=contas,
-      numero_da_conta=user_numero_da_conta,
-      numero_da_agencia=user_numero_da_agencia
-    )
+        search_only_account = conta_only(
+          contas=contas,
+          numero_da_conta=user_numero_da_conta,
+          numero_da_agencia=user_numero_da_agencia
+        )
 
     return search_only_account
 
@@ -124,11 +134,10 @@ def criar_usuario_e_conta(
   *,
   usuarios,
   contas,
-  numero_da_conta,
   numero_da_agencia,
   login_activate,
   on_and_off_login,
-  user_active
+  user_active,
 ):
     print("Agradecemos pela preferência em nosso banco! :)")
     nome_usuario = input('Qual o seu nome: ')
@@ -151,9 +160,9 @@ def criar_usuario_e_conta(
         usuarios.append(user_info)
         conta_criada = criar_conta(
           contas=contas,
-          numero_da_conta=numero_da_conta,
           numero_da_agencia=numero_da_agencia,
-          usuario=user_info
+          usuario=user_info,
+          func_numero_da_conta=func_numero_da_conta
         )
         on_and_off_login(login_activate=login_activate)
         user_active(usuario=user_info)
@@ -169,8 +178,14 @@ def criar_usuario_e_conta(
     return result_criar_user
 
 
-def criar_conta(*, contas, numero_da_conta, numero_da_agencia, usuario):
-    numero_da_conta += 1
+def criar_conta(
+  *,
+  contas,
+  numero_da_agencia,
+  usuario,
+  func_numero_da_conta
+):
+    numero_da_conta = func_numero_da_conta(contas=contas)
     criando_conta = {
       "numero_da_agencia": numero_da_agencia,
       "numero_da_conta": numero_da_conta,
@@ -180,7 +195,33 @@ def criar_conta(*, contas, numero_da_conta, numero_da_agencia, usuario):
     return criando_conta
 
 
-# def criar_nova_conta(*, usuarios, usuario)
+def criar_nova_conta(
+  *,
+  usuarios,
+  search_user_only,
+  contas,
+  numero_da_agencia,
+  func_numero_da_conta
+):
+    cpf = input('Informe o seu CPF (apenas números): ')
+    usuario = search_user_only(usuarios=usuarios, cpf=cpf)
+    print(f"USUÁRIO: {usuario}")
+    if usuario is False:
+        criando_conta = 'Usuário não encontrado! :('
+    else:
+        print(f"TESTE 1: {numero_da_conta}")
+        numero_da_conta_of = func_numero_da_conta(
+          contas=contas
+        )
+        print(f"TESTE 2: {numero_da_conta_of}")
+        criando_conta = {
+          "numero_da_agencia": numero_da_agencia,
+          "numero_da_conta": numero_da_conta_of,
+          "usuario": usuario
+        }
+        contas.append(criando_conta)
+    return criando_conta
+
 
 while True:
     if login_activate is False:
@@ -190,7 +231,6 @@ while True:
               criar_usuario_e_conta(
                 usuarios=usuarios,
                 contas=contas,
-                numero_da_conta=numero_da_conta,
                 numero_da_agencia=numero_da_agencia,
                 login_activate=login_activate,
                 on_and_off_login=on_and_off_login,
@@ -199,15 +239,28 @@ while True:
             )
             login_activate = on_and_off_login(login_activate=login_activate)
         elif opcao_new_user.lower() == 'l':
-            print(
-              login(
+            if login(
                 usuarios=usuarios,
                 contas=contas,
                 login_activate=login_activate,
                 on_and_off_login=on_and_off_login
-              )
-            )
-            login_activate = on_and_off_login(login_activate=login_activate)
+              ) == "Usuário não encontrado!":
+                print("########################")
+                print("Usuário não encontrado!")
+                print("########################")
+                login_activate = on_and_off_login(login_activate=True)
+            else:
+                login_activate = on_and_off_login(
+                  login_activate=login_activate
+                )
+                print(
+                  login(
+                    usuarios=usuarios,
+                    contas=contas,
+                    login_activate=login_activate,
+                    on_and_off_login=on_and_off_login
+                  )
+                )
         elif opcao_new_user.lower() == 'q':
             break
         else:
@@ -235,8 +288,16 @@ while True:
             ))
         elif opcao_user.lower() == 'e':
             print(extrato(func_saldo, depositos=depositos, saques=saques))
-        elif opcao_user.lower() == 'e':
-            print()
+        elif opcao_user.lower() == 'n':
+            print(
+              criar_nova_conta(
+                usuarios=usuarios,
+                search_user_only=search_user_only,
+                contas=contas,
+                numero_da_agencia=numero_da_agencia,
+                func_numero_da_conta=func_numero_da_conta
+              )
+            )
         elif opcao_user.lower() == 'q':
             break
         else:

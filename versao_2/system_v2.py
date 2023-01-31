@@ -73,3 +73,17 @@ while True:
         break
     else:
         print("Opção inválida, veja as disponíveis no 'MENU'.")
+
+
+# if login(
+#                 usuarios=usuarios,
+#                 contas=contas,
+#                 login_activate=login_activate,
+#                 on_and_off_login=on_and_off_login
+#               ) == "Usuário não encontrado!":
+#                 login_activate = on_and_off_login(login_activate=True)
+#                 print(f"LOOP LOGIN: {login_activate}")
+#             else:
+#                 login_activate = on_and_off_login(
+#                   login_activate=login_activate
+#                 )
