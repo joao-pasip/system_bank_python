@@ -29,7 +29,7 @@ menu_after_login = """
   [s] - Digite 's' para Sacar;
   [e] - Digite 'e' para ter o Extrato;
   [n] - Digite 'n' para Criar Nova Conta;
-  [q] - Digite 'q' para Sair do sistema.
+  [q] - Digite 'q' para Sair da Conta.
 
 """
 
@@ -73,6 +73,8 @@ def search_user_only(*, usuarios, cpf):
     # inverse_list_user = copia_users[::-1]
     result_user_only = ''
     for user in usuarios:
+        print(f"USER: {user}")
+        print(f"USER CPF: {cpf}")
         if user["cpf"] == cpf:
             result_user_only = user
         else:
@@ -113,11 +115,15 @@ def login(
     user_numero_da_agencia = input('Informe o número da sua agência: ')
     user_numero_da_conta = int(input('Informe o número da sua conta: '))
 
+    user_info = search_user_only(usuarios=usuarios, cpf=user_cpf)
     if len(usuarios) == 0:
         on_and_off_login(login_activate=True)
         search_only_account = 'Usuário não encontrado!'
+    elif user_info is False:
+        search_only_account = 'Usuário não encontrado!'
     else:
         user_info = search_user_only(usuarios=usuarios, cpf=user_cpf)
+        print(f"USER INFO: {user_info}")
         user_active(usuario=user_info)
         on_and_off_login(login_activate=login_activate)
 
@@ -142,7 +148,7 @@ def criar_usuario_e_conta(
     print("Agradecemos pela preferência em nosso banco! :)")
     nome_usuario = input('Qual o seu nome: ')
     data_de_nascimento = input('Quando você nasceu (dd/mm/aaaa): ')
-    cpf = input('Informe o seu CPF (apenas números): ')
+    cpf = int(input('Informe o seu CPF (apenas números): '))
     endereco = input(
       'Informe seu endereço (logradouro, número - bairro - city/state: '
     )
@@ -225,6 +231,7 @@ def criar_nova_conta(
 
 while True:
     if login_activate is False:
+        # print(f"LOGIN ACTIVATE I: {login_activate}")
         opcao_new_user = input((menu_before_login))
         if opcao_new_user.lower() == 'c':
             print(
@@ -238,29 +245,20 @@ while True:
               )
             )
             login_activate = on_and_off_login(login_activate=login_activate)
+            # print(f"LOGIN ACTIVATE C: {login_activate}")
         elif opcao_new_user.lower() == 'l':
-            if login(
+            # print(f"LOGIN ACTIVATE L: {login_activate}")
+            print(
+              login(
                 usuarios=usuarios,
                 contas=contas,
                 login_activate=login_activate,
                 on_and_off_login=on_and_off_login
-              ) == "Usuário não encontrado!":
-                print("########################")
-                print("Usuário não encontrado!")
-                print("########################")
-                login_activate = on_and_off_login(login_activate=True)
-            else:
-                login_activate = on_and_off_login(
-                  login_activate=login_activate
-                )
-                print(
-                  login(
-                    usuarios=usuarios,
-                    contas=contas,
-                    login_activate=login_activate,
-                    on_and_off_login=on_and_off_login
-                  )
-                )
+              )
+            )
+            login_activate = on_and_off_login(
+              login_activate=login_activate
+            )
         elif opcao_new_user.lower() == 'q':
             break
         else:
@@ -299,6 +297,8 @@ while True:
               )
             )
         elif opcao_user.lower() == 'q':
-            break
+            login_activate = on_and_off_login(login_activate=login_activate)
+            # print(f"LOGIN ACTIVATE Q: {login_activate}")
+            # opcao_new_user = input((menu_before_login))
         else:
             print("Opção inválida, veja as disponíveis no 'MENU'.")
