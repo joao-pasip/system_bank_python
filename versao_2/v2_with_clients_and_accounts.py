@@ -50,6 +50,34 @@ numero_da_agencia = '0001'
 
 login_activate = False
 
+# Necessário analisar melhores possibilidades de avaliar o CPF
+# porque foi feito gambiarra. Basicamente o 0 a esquerda não é
+# considerado, então em CPF com 10 digitios é acrescentado o 0.
+
+
+def validate_cpf(*, cpf):
+    cpf_valid = False
+    cpf_number = ''
+    if len(str(cpf)) == 11:
+        cpf_valid = True
+        cpf_number = str(cpf)
+    elif len(str(cpf)) == 10:
+        cpf_number = "0" + str(cpf)
+        cpf_valid = True
+    else:
+        cpf_valid = False
+    cpf_right_fatiamento = cpf_number if cpf_valid else False
+
+    if cpf_right_fatiamento == cpf_number:
+        fatia_um = cpf_right_fatiamento[:3]
+        fatia_dois = cpf_right_fatiamento[3:6]
+        fatia_tres = cpf_right_fatiamento[6:9]
+        fatia_quatro = cpf_right_fatiamento[9:]
+        cpf_formatado = f"{fatia_um}.{fatia_dois}.{fatia_tres}-{fatia_quatro}"
+    else:
+        cpf_formatado = False
+    return cpf_formatado
+
 
 def func_numero_da_conta(*, contas):
     numero_da_conta = len(contas)
@@ -95,12 +123,16 @@ def conta_only(*, contas, numero_da_conta, numero_da_agencia):
     return result_user_only
 
 
-def on_and_off_login(*, login_activate):
-    # global login_activate
-    if login_activate is False:
+def on_and_off_login(*, key_activate):
+    global login_activate
+    # print(f"LOGIN ACTIVATE 1: {login_activate}")
+    # print(f"KEY ACTIVATE 1: {key_activate}")
+    if login_activate is False and key_activate is False:
         login_activate = True
-    elif login_activate is True:
+    elif login_activate is True and key_activate is True:
         login_activate = False
+    # print(f"LOGIN ACTIVATE 2: {login_activate}")
+    # print(f"KEY ACTIVATE 2: {key_activate}")
     return login_activate
 
 
@@ -109,30 +141,34 @@ def login(
   usuarios,
   contas,
   login_activate,
-  on_and_off_login
+  on_and_off_login,
+  validate_cpf
 ):
-    user_cpf = int(input('Informe o CPF da sua conta (apenas números): '))
+    user_cpf = input('Informe o CPF da sua conta (apenas números): ')
     user_numero_da_agencia = input('Informe o número da sua agência: ')
     user_numero_da_conta = int(input('Informe o número da sua conta: '))
 
-    user_info = search_user_only(usuarios=usuarios, cpf=user_cpf)
-    if len(usuarios) == 0:
-        on_and_off_login(login_activate=True)
-        search_only_account = 'Usuário não encontrado!'
-    elif user_info is False:
-        search_only_account = 'Usuário não encontrado!'
+    cpf_formatado = validate_cpf(cpf=user_cpf)
+    if cpf_formatado is False:
+        search_only_account = 'CPF inválido! :('
     else:
-        user_info = search_user_only(usuarios=usuarios, cpf=user_cpf)
-        print(f"USER INFO: {user_info}")
-        user_active(usuario=user_info)
-        on_and_off_login(login_activate=login_activate)
+        user_info = search_user_only(usuarios=usuarios, cpf=cpf_formatado)
+        if len(usuarios) == 0:
+            on_and_off_login(key_activate=True)
+            search_only_account = 'Usuário não encontrado!'
+        elif user_info is False:
+            search_only_account = 'Usuário não encontrado!'
+        else:
+            user_info = search_user_only(usuarios=usuarios, cpf=cpf_formatado)
+            print(f"USER INFO: {user_info}")
+            user_active(usuario=user_info)
+            on_and_off_login(key_activate=False)
 
-        search_only_account = conta_only(
-          contas=contas,
-          numero_da_conta=user_numero_da_conta,
-          numero_da_agencia=user_numero_da_agencia
-        )
-
+            search_only_account = conta_only(
+              contas=contas,
+              numero_da_conta=user_numero_da_conta,
+              numero_da_agencia=user_numero_da_agencia
+            )
     return search_only_account
 
 
@@ -144,43 +180,48 @@ def criar_usuario_e_conta(
   login_activate,
   on_and_off_login,
   user_active,
+  validate_cpf
 ):
     print("Agradecemos pela preferência em nosso banco! :)")
     nome_usuario = input('Qual o seu nome: ')
     data_de_nascimento = input('Quando você nasceu (dd/mm/aaaa): ')
-    cpf = int(input('Informe o seu CPF (apenas números): '))
+    cpf = input('Informe o seu CPF (apenas números): ')
     endereco = input(
       'Informe seu endereço (logradouro, número - bairro - city/state: '
     )
     result_criar_user = ''
-
-    user_info = {
-      "nome_do_usuario": nome_usuario,
-      "data_de_nascimento": data_de_nascimento,
-      "cpf": cpf,
-      "endereço": endereco
-    }
-
-    user_only_one = usuarios.count(cpf)
-    if user_only_one == 0:
-        usuarios.append(user_info)
-        conta_criada = criar_conta(
-          contas=contas,
-          numero_da_agencia=numero_da_agencia,
-          usuario=user_info,
-          func_numero_da_conta=func_numero_da_conta
-        )
-        on_and_off_login(login_activate=login_activate)
-        user_active(usuario=user_info)
-        result_criar_user = (
-          f"INFORMAÇÕES PESSOAIS\n"
-          f"{user_info}\n"
-          f"########################\n"
-          f"INFORMAÇÕES DA CONTA\n"
-          f"{conta_criada}"
-        )
+    cpf_right = validate_cpf(cpf=cpf)
+    print(f"CPF right: {cpf_right}")
+    if cpf_right is False:
+        result_criar_user = 'CPF inválido! :('
+        on_and_off_login(key_activate=True)
     else:
-        result_criar_user = 'Usuário existente no banco'
+        user_info = {
+          "nome_do_usuario": nome_usuario,
+          "data_de_nascimento": data_de_nascimento,
+          "cpf": cpf_right,
+          "endereço": endereco
+        }
+        user_only_one = usuarios.count(cpf)
+        if user_only_one == 0:
+            usuarios.append(user_info)
+            conta_criada = criar_conta(
+              contas=contas,
+              numero_da_agencia=numero_da_agencia,
+              usuario=user_info,
+              func_numero_da_conta=func_numero_da_conta
+            )
+            on_and_off_login(key_activate=False)
+            user_active(usuario=user_info)
+            result_criar_user = (
+              f"INFORMAÇÕES PESSOAIS\n"
+              f"{user_info}\n"
+              f"########################\n"
+              f"INFORMAÇÕES DA CONTA\n"
+              f"{conta_criada}"
+            )
+        else:
+            result_criar_user = 'Usuário existente no banco'
     return result_criar_user
 
 
@@ -211,7 +252,6 @@ def criar_nova_conta(
 ):
     cpf = input('Informe o seu CPF (apenas números): ')
     usuario = search_user_only(usuarios=usuarios, cpf=cpf)
-    print(f"USUÁRIO: {usuario}")
     if usuario is False:
         criando_conta = 'Usuário não encontrado! :('
     else:
@@ -241,10 +281,11 @@ while True:
                 numero_da_agencia=numero_da_agencia,
                 login_activate=login_activate,
                 on_and_off_login=on_and_off_login,
-                user_active=user_active
+                user_active=user_active,
+                validate_cpf=validate_cpf
               )
             )
-            login_activate = on_and_off_login(login_activate=login_activate)
+            # login_activate = on_and_off_login(login_activate=login_activate)
             # print(f"LOGIN ACTIVATE C: {login_activate}")
         elif opcao_new_user.lower() == 'l':
             # print(f"LOGIN ACTIVATE L: {login_activate}")
@@ -253,12 +294,13 @@ while True:
                 usuarios=usuarios,
                 contas=contas,
                 login_activate=login_activate,
-                on_and_off_login=on_and_off_login
+                on_and_off_login=on_and_off_login,
+                validate_cpf=validate_cpf
               )
             )
-            login_activate = on_and_off_login(
-              login_activate=login_activate
-            )
+            # login_activate = on_and_off_login(
+            #   login_activate=login_activate
+            # )
         elif opcao_new_user.lower() == 'q':
             break
         else:
@@ -297,7 +339,7 @@ while True:
               )
             )
         elif opcao_user.lower() == 'q':
-            login_activate = on_and_off_login(login_activate=login_activate)
+            login_activate = on_and_off_login(key_activate=login_activate)
             # print(f"LOGIN ACTIVATE Q: {login_activate}")
             # opcao_new_user = input((menu_before_login))
         else:
