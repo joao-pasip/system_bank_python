@@ -108,6 +108,8 @@ def func_numero_da_conta(*, contas):
     return numero_da_conta
 
 
+# def conta_active(*, conta_only, numero_da_conta, contas, numero_da_agencia): 
+
 def user_active(*, usuario):
     # print(f"TESTE: {usuario}")
     user_info = {
@@ -124,8 +126,8 @@ def search_user_only(*, usuarios, cpf):
     # inverse_list_user = copia_users[::-1]
     result_user_only = ''
     for user in usuarios:
-        print(f"USER: {user}")
-        print(f"USER CPF: {cpf}")
+        # print(f"USER: {user}")
+        # print(f"USER CPF: {cpf}")
         if user["cpf"] == cpf:
             result_user_only = user
         else:
@@ -203,7 +205,8 @@ def criar_usuario_e_conta(
   login_activate,
   on_and_off_login,
   user_active,
-  validate_cpf
+  validate_cpf,
+  search_user_only
 ):
     print("Agradecemos pela preferência em nosso banco! :)")
     nome_usuario = input('Qual o seu nome: ')
@@ -215,6 +218,11 @@ def criar_usuario_e_conta(
     result_criar_user = ''
     cpf_right = validate_cpf(cpf=cpf)
     data_de_nascimento_valid = is_valid_date(date_string=data_de_nascimento)
+    # print(f"USERs: {usuarios}")
+    user_only_one = False if search_user_only(
+      usuarios=usuarios, cpf=cpf_right
+    ) else True
+    # print(f"USER ONLY ONE: {user_only_one}")
     # print(f"DATA DE NASCIMENTO VALID {data_de_nascimento_valid}")
     # print(f"CPF right: {cpf_right}")
     if cpf_right is False:
@@ -223,33 +231,35 @@ def criar_usuario_e_conta(
     elif data_de_nascimento_valid is False:
         result_criar_user = 'Data de nascimento inválida no formato :('
         on_and_off_login(key_activate=True)
-    else:
+    elif user_only_one is not False:
         user_info = {
           "nome_do_usuario": nome_usuario,
           "data_de_nascimento": data_de_nascimento,
           "cpf": cpf_right,
           "endereço": endereco
         }
-        user_only_one = usuarios.count(cpf)
-        if user_only_one == 0:
-            usuarios.append(user_info)
-            conta_criada = criar_conta(
-              contas=contas,
-              numero_da_agencia=numero_da_agencia,
-              usuario=user_info,
-              func_numero_da_conta=func_numero_da_conta
-            )
-            on_and_off_login(key_activate=False)
-            user_active(usuario=user_info)
-            result_criar_user = (
-              f"INFORMAÇÕES PESSOAIS\n"
-              f"{user_info}\n"
-              f"########################\n"
-              f"INFORMAÇÕES DA CONTA\n"
-              f"{conta_criada}"
-            )
-        else:
-            result_criar_user = 'Usuário existente no banco'
+        # user_only_one = usuarios.count(cpf)
+        # print(f"USER ONLY ONE: {user_only_one}")
+        # if user_only_one == 0:
+        usuarios.append(user_info)
+        conta_criada = criar_conta(
+          contas=contas,
+          numero_da_agencia=numero_da_agencia,
+          usuario=user_info,
+          func_numero_da_conta=func_numero_da_conta
+        )
+        print(f"CONTA CRIADA 1: {conta_criada}")
+        on_and_off_login(key_activate=False)
+        user_active(usuario=user_info)
+        result_criar_user = (
+          f"INFORMAÇÕES PESSOAIS\n"
+          f"{user_info}\n"
+          f"########################\n"
+          f"INFORMAÇÕES DA CONTA\n"
+          f"{conta_criada}"
+        )
+    else:
+        result_criar_user = 'Usuário existente no banco'
     return result_criar_user
 
 
@@ -312,7 +322,8 @@ while True:
                 login_activate=login_activate,
                 on_and_off_login=on_and_off_login,
                 user_active=user_active,
-                validate_cpf=validate_cpf
+                validate_cpf=validate_cpf,
+                search_user_only=search_user_only
               )
             )
             # login_activate = on_and_off_login(login_activate=login_activate)
