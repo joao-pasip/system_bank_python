@@ -3,6 +3,7 @@ from saldo.func_saldo import func_saldo
 from extrato.func_extrato import extrato
 from saque.func_saque import saque
 from saque.func_aux_saque import aux_quantidade_saque_dia
+import datetime
 
 
 menu_before_login = """
@@ -53,6 +54,28 @@ login_activate = False
 # Necessário analisar melhores possibilidades de avaliar o CPF
 # porque foi feito gambiarra. Basicamente o 0 a esquerda não é
 # considerado, então em CPF com 10 digitios é acrescentado o 0.
+
+
+def listar_users(*, usuarios):
+    list_users = []
+    for user in usuarios:
+        list_users.append(user)
+    return list_users
+
+
+def listar_contas(*, contas):
+    list_contas = []
+    for conta in contas:
+        list_contas.append(conta)
+    return list_contas
+
+
+def is_valid_date(*, date_string):
+    try:
+        datetime.datetime.strptime(date_string, '%d/%m/%Y')
+        return True
+    except ValueError:
+        return False
 
 
 def validate_cpf(*, cpf):
@@ -191,9 +214,14 @@ def criar_usuario_e_conta(
     )
     result_criar_user = ''
     cpf_right = validate_cpf(cpf=cpf)
-    print(f"CPF right: {cpf_right}")
+    data_de_nascimento_valid = is_valid_date(date_string=data_de_nascimento)
+    # print(f"DATA DE NASCIMENTO VALID {data_de_nascimento_valid}")
+    # print(f"CPF right: {cpf_right}")
     if cpf_right is False:
         result_criar_user = 'CPF inválido! :('
+        on_and_off_login(key_activate=True)
+    elif data_de_nascimento_valid is False:
+        result_criar_user = 'Data de nascimento inválida no formato :('
         on_and_off_login(key_activate=True)
     else:
         user_info = {
@@ -251,7 +279,9 @@ def criar_nova_conta(
   func_numero_da_conta
 ):
     cpf = input('Informe o seu CPF (apenas números): ')
-    usuario = search_user_only(usuarios=usuarios, cpf=cpf)
+    cpf_right = validate_cpf(cpf=cpf)
+    usuario = search_user_only(usuarios=usuarios, cpf=cpf_right)
+    print(f"USUÁRIO NOVA CONTA: {usuario}")
     if usuario is False:
         criando_conta = 'Usuário não encontrado! :('
     else:
@@ -303,6 +333,10 @@ while True:
             # )
         elif opcao_new_user.lower() == 'q':
             break
+        elif opcao_new_user.lower() == 'lu':
+            print(listar_users(usuarios=usuarios))
+        elif opcao_new_user.lower() == 'lc':
+            print(listar_contas(contas=contas))
         else:
             print("Opção inválida, veja as disponíveis no 'MENU'.")
     elif login_activate is True:
