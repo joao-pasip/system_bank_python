@@ -108,7 +108,15 @@ def func_numero_da_conta(*, contas):
     return numero_da_conta
 
 
-# def conta_active(*, conta_only, numero_da_conta, contas, numero_da_agencia): 
+def conta_active(*, conta_only, numero_da_conta, contas, numero_da_agencia):
+    conta = conta_only(
+      contas=contas,
+      numero_da_conta=numero_da_conta,
+      numero_da_agencia=numero_da_agencia
+    )
+    print(f"CONTA ATIVA: {conta}")
+    return conta
+
 
 def user_active(*, usuario):
     # print(f"TESTE: {usuario}")
@@ -167,7 +175,9 @@ def login(
   contas,
   login_activate,
   on_and_off_login,
-  validate_cpf
+  validate_cpf,
+  conta_only,
+  conta_active
 ):
     user_cpf = input('Informe o CPF da sua conta (apenas números): ')
     user_numero_da_agencia = input('Informe o número da sua agência: ')
@@ -185,7 +195,7 @@ def login(
             search_only_account = 'Usuário não encontrado!'
         else:
             user_info = search_user_only(usuarios=usuarios, cpf=cpf_formatado)
-            print(f"USER INFO: {user_info}")
+            # print(f"USER INFO: {user_info}")
             user_active(usuario=user_info)
             on_and_off_login(key_activate=False)
 
@@ -193,6 +203,14 @@ def login(
               contas=contas,
               numero_da_conta=user_numero_da_conta,
               numero_da_agencia=user_numero_da_agencia
+            )
+
+            # print(f"SEARCH ONLY ACCOUNT LOGIN: {search_only_account}")
+            conta_active(
+              conta_only=conta_only,
+              numero_da_conta=search_only_account['numero_da_conta'],
+              contas=contas,
+              numero_da_agencia=search_only_account['numero_da_agencia']
             )
     return search_only_account
 
@@ -206,7 +224,8 @@ def criar_usuario_e_conta(
   on_and_off_login,
   user_active,
   validate_cpf,
-  search_user_only
+  search_user_only,
+  conta_active
 ):
     print("Agradecemos pela preferência em nosso banco! :)")
     nome_usuario = input('Qual o seu nome: ')
@@ -248,15 +267,25 @@ def criar_usuario_e_conta(
           usuario=user_info,
           func_numero_da_conta=func_numero_da_conta
         )
-        print(f"CONTA CRIADA 1: {conta_criada}")
+        # print(f"CONTA CRIADA 1: {conta_criada}")
         on_and_off_login(key_activate=False)
         user_active(usuario=user_info)
+        conta_active(
+          conta_only=conta_only,
+          numero_da_conta=conta_criada['numero_da_conta'],
+          contas=contas,
+          numero_da_agencia=conta_criada['numero_da_agencia']
+        )
         result_criar_user = (
+          f"########################\n"
+          f"########################\n"
           f"INFORMAÇÕES PESSOAIS\n"
           f"{user_info}\n"
           f"########################\n"
           f"INFORMAÇÕES DA CONTA\n"
-          f"{conta_criada}"
+          f"{conta_criada}\n"
+          f"########################\n"
+          f"########################\n"
         )
     else:
         result_criar_user = 'Usuário existente no banco'
@@ -286,27 +315,40 @@ def criar_nova_conta(
   search_user_only,
   contas,
   numero_da_agencia,
-  func_numero_da_conta
+  func_numero_da_conta,
+  conta_active,
+  conta_only
 ):
     cpf = input('Informe o seu CPF (apenas números): ')
     cpf_right = validate_cpf(cpf=cpf)
     usuario = search_user_only(usuarios=usuarios, cpf=cpf_right)
-    print(f"USUÁRIO NOVA CONTA: {usuario}")
+    # print(f"USUÁRIO NOVA CONTA: {usuario}")
     if usuario is False:
         criando_conta = 'Usuário não encontrado! :('
     else:
-        print(f"TESTE 1: {numero_da_conta}")
+        # print(f"TESTE 1: {numero_da_conta}")
         numero_da_conta_of = func_numero_da_conta(
           contas=contas
         )
-        print(f"TESTE 2: {numero_da_conta_of}")
+        # print(f"TESTE 2: {numero_da_conta_of}")
         criando_conta = {
           "numero_da_agencia": numero_da_agencia,
           "numero_da_conta": numero_da_conta_of,
           "usuario": usuario
         }
+        conta_active(
+          conta_only=conta_only,
+          numero_da_conta=criando_conta['numero_da_conta'],
+          contas=contas,
+          numero_da_agencia=criando_conta['numero_da_agencia']
+        )
         contas.append(criando_conta)
-    return criando_conta
+    return (
+      f"########################\n"
+      f"########################\n"
+      f"Você está na sua nova conta com as seguintes informações :)\n"
+      f"{criando_conta}"
+    )
 
 
 while True:
@@ -323,7 +365,8 @@ while True:
                 on_and_off_login=on_and_off_login,
                 user_active=user_active,
                 validate_cpf=validate_cpf,
-                search_user_only=search_user_only
+                search_user_only=search_user_only,
+                conta_active=conta_active
               )
             )
             # login_activate = on_and_off_login(login_activate=login_activate)
@@ -336,7 +379,9 @@ while True:
                 contas=contas,
                 login_activate=login_activate,
                 on_and_off_login=on_and_off_login,
-                validate_cpf=validate_cpf
+                validate_cpf=validate_cpf,
+                conta_only=conta_only,
+                conta_active=conta_active
               )
             )
             # login_activate = on_and_off_login(
@@ -380,7 +425,9 @@ while True:
                 search_user_only=search_user_only,
                 contas=contas,
                 numero_da_agencia=numero_da_agencia,
-                func_numero_da_conta=func_numero_da_conta
+                func_numero_da_conta=func_numero_da_conta,
+                conta_active=conta_active,
+                conta_only=conta_only
               )
             )
         elif opcao_user.lower() == 'q':
