@@ -20,11 +20,32 @@ def saque(
       contas=contas,
     )
 
-    print(f"SAQUE CONTA CORRECT: {conta_correct}")
+    saques_conta_especifica = []
+
+    for saque in saques:
+        if (
+          saque['conta']['numero_da_conta']
+          == conta_correct['conta']['numero_da_conta']
+        ):
+            info_saque = {
+              'natureza': saque['natureza'],
+              'data': saque['data'],
+              'valor': saque['valor']
+            }
+            # print(f"OPERAÇÃO EXTRATO: {operacao}")
+            saques_conta_especifica.append(info_saque)
+    # print(f"SAQUE CONTA CORRECT: {conta_correct}")
+    print(f"SAQUE SAQUES: {saques_conta_especifica}")
     if conta_correct['exists'] is True:
         sacar = input("Quanto deseja sacar? ")
         v_saque = float(sacar)
-        saldo = func_saldo(depositos=depositos, saques=saques)
+        saldo = func_saldo(
+          depositos=depositos,
+          saques=saques,
+          operacao_em_qual_conta=operacao_em_qual_conta,
+          contas=contas,
+          conta_only=conta_only
+        )
         result_saque = ''
         if v_saque > 500:
             result_saque = ("""
@@ -39,7 +60,7 @@ def saque(
               f"################################################\n"
               f"Atualmente seu saldo é de R$ {saldo:.2f}"
             )
-        elif len(saques) == 0:
+        elif len(saques_conta_especifica) == 0:
             saques.append({
               "natureza": "saque",
               "data": str_date_time(),
@@ -50,7 +71,7 @@ def saque(
               f"Você realizou o primeiro saque do dia.\n"
               f"No valor de R$ {v_saque:.2f}\n"
             )
-        elif len(saques) > 0:
+        elif len(saques_conta_especifica) > 0:
             numero_de_saques += 1
             total_sacado_dia += v_saque
             valid_quantidade_e_total_sacado_dia = aux_quantidade_saque_dia(
@@ -59,6 +80,10 @@ def saque(
               total_sacado_dia=total_sacado_dia,
               LIMITE_DE_SAQUES_DIA=LIMITE_DE_SAQUES_DIA,
               v_saque=v_saque,
+              operacao_em_qual_conta=operacao_em_qual_conta,
+              contas=contas,
+              conta_only=conta_only,
+              saques_conta_especifica=saques_conta_especifica
             )
             result_saque = valid_quantidade_e_total_sacado_dia
         result_extrato = extrato(
@@ -69,7 +94,7 @@ def saque(
           contas=contas,
           conta_only=conta_only
         )
-        print(f"RESULT EXTRATO SAQUE: {result_extrato}")
+        # print(f"RESULT EXTRATO SAQUE: {result_extrato}")
         # return (
         #   f"{result_saque}"
         #   f"{result_extrato}"

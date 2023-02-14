@@ -18,7 +18,13 @@ def func_deposito(
     if conta_correct['exists'] is True:
         depositar = input("Quanto deseja depositar? ")
         valor_deposito = float(depositar)
-        saldo = func_saldo(depositos=depositos, saques=saques)
+        saldo = func_saldo(
+          depositos=depositos,
+          saques=saques,
+          operacao_em_qual_conta=operacao_em_qual_conta,
+          contas=contas,
+          conta_only=conta_only
+        )
         result_deposit = ''
         if valor_deposito > 0:
             saldo = saldo + valor_deposito

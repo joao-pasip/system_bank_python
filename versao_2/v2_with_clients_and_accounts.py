@@ -176,14 +176,18 @@ def user_active(*, usuario):
 def search_user_only(*, usuarios, cpf):
     # copia_users = usuarios.copy()
     # inverse_list_user = copia_users[::-1]
+    # print(f"CPF SEARCH USER ONLY: {type(cpf)}")
+    # print(f"USERS SEARCH USER ONLY: {usuarios}")
     result_user_only = ''
     for user in usuarios:
         # print(f"USER: {user}")
         # print(f"USER CPF: {cpf}")
         if user["cpf"] == cpf:
             result_user_only = user
+            break
         else:
             result_user_only = False
+    print(f"RESULT SEARCH USER ONLY: {result_user_only}")
     return result_user_only
 
 
@@ -196,6 +200,7 @@ def conta_only(*, contas, numero_da_conta, numero_da_agencia):
           and conta["numero_da_agencia"] == numero_da_agencia
         ):
             result_user_only = conta
+            break
         else:
             result_user_only = 'Conta não encontrada'
     return result_user_only
@@ -229,34 +234,34 @@ def login(
     user_numero_da_conta = int(input('Informe o número da sua conta: '))
 
     cpf_formatado = validate_cpf(cpf=user_cpf)
+    user_info = search_user_only(usuarios=usuarios, cpf=cpf_formatado)
+    # print(f"USER INFO_LOGIN: {user_info}")
+    # print(f"USERS LOGIN: {usuarios}")
     if cpf_formatado is False:
         search_only_account = 'CPF inválido! :('
+    elif len(usuarios) == 0:
+        on_and_off_login(key_activate=True)
+        search_only_account = 'Usuário não encontrado! S/U'
+    elif user_info is False:
+        search_only_account = 'Usuário não encontrado!'
     else:
-        user_info = search_user_only(usuarios=usuarios, cpf=cpf_formatado)
-        if len(usuarios) == 0:
-            on_and_off_login(key_activate=True)
-            search_only_account = 'Usuário não encontrado!'
-        elif user_info is False:
-            search_only_account = 'Usuário não encontrado!'
-        else:
-            user_info = search_user_only(usuarios=usuarios, cpf=cpf_formatado)
-            # print(f"USER INFO: {user_info}")
-            user_active(usuario=user_info)
-            on_and_off_login(key_activate=False)
-
-            search_only_account = conta_only(
-              contas=contas,
-              numero_da_conta=user_numero_da_conta,
-              numero_da_agencia=user_numero_da_agencia
-            )
-
-            # print(f"SEARCH ONLY ACCOUNT LOGIN: {search_only_account}")
-            conta_active(
-              conta_only=conta_only,
-              numero_da_conta=search_only_account['numero_da_conta'],
-              contas=contas,
-              numero_da_agencia=search_only_account['numero_da_agencia']
-            )
+        # user_info = search_user_only(
+        # usuarios=usuarios, cpf=cpf_formatado)
+        # print(f"USER INFO: {user_info}")
+        user_active(usuario=user_info)
+        on_and_off_login(key_activate=False)
+        search_only_account = conta_only(
+          contas=contas,
+          numero_da_conta=user_numero_da_conta,
+          numero_da_agencia=user_numero_da_agencia
+        )
+        # print(f"SEARCH ONLY ACCOUNT LOGIN: {search_only_account}")
+        conta_active(
+          conta_only=conta_only,
+          numero_da_conta=search_only_account['numero_da_conta'],
+          contas=contas,
+          numero_da_agencia=search_only_account['numero_da_agencia']
+        )
     return search_only_account
 
 
@@ -476,7 +481,6 @@ while True:
               saques=saques,
               operacao_em_qual_conta=operacao_em_qual_conta,
               contas=contas,
-              conta_ativa=conta_ativa,
               conta_only=conta_only
               )
             )

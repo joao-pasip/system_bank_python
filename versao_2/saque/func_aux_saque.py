@@ -11,15 +11,23 @@ def aux_quantidade_saque_dia(
   total_sacado_dia,
   LIMITE_DE_SAQUES_DIA,
   v_saque,
+  operacao_em_qual_conta,
+  contas,
+  conta_only,
+  saques_conta_especifica
   ):
     result_aux_saque = ''
     # print(
     #   f"AUX_SAQUES: {saques}\n"
     # )
-    if len(saques) > 0:
-        for operacao in saques:
+    conta_correct = operacao_em_qual_conta(
+      conta_only=conta_only,
+      contas=contas,
+    )
+    if len(saques_conta_especifica) > 0:
+        for operacao in saques_conta_especifica:
             operacoes_mesmo_dia = []
-            saques_inverse = saques[::-1]
+            saques_inverse = saques_conta_especifica[::-1]
             for operacao_saque_inverse in saques_inverse:
                 if (
                   operacao['data'].split(',')[0]
@@ -56,7 +64,8 @@ def aux_quantidade_saque_dia(
             saques.append({
               "natureza": "saque",
               "data": str_date_time(),
-              "valor": v_saque
+              "valor": v_saque,
+              "conta": conta_correct['conta']
             })
             msg_personalite = (
               f"""

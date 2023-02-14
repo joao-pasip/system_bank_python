@@ -13,7 +13,7 @@ def extrato(
       contas=contas,
     )
 
-    print(f"CONTA CORRECT EXTRATO: {conta_correct}")
+    # print(f"CONTA CORRECT EXTRATO: {conta_correct}")
     if conta_correct['exists'] is True:
         list_extrato = []
         list_extrato = depositos + saques
@@ -32,7 +32,13 @@ def extrato(
                 }
                 # print(f"OPERAÇÃO EXTRATO: {operacao}")
                 conta_extrato.append(info_extrato)
-        saldo = func_saldo(depositos=depositos, saques=saques)
+        saldo = func_saldo(
+          depositos=depositos,
+          saques=saques,
+          operacao_em_qual_conta=operacao_em_qual_conta,
+          contas=contas,
+          conta_only=conta_only
+        )
         if len(conta_extrato) == 0 and saldo == 0:
             excecao_extrato = (
               f"################################################\n"
