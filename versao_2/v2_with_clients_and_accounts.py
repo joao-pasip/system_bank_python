@@ -49,6 +49,11 @@ contas = []
 numero_da_conta = 0
 numero_da_agencia = '0001'
 
+conta_ativa = {
+  'exists': False,
+  'conta': ''
+}
+print(f"CONTA ATIVA: {conta_ativa}")
 login_activate = False
 
 # Necessário analisar melhores possibilidades de avaliar o CPF
@@ -68,6 +73,28 @@ def listar_contas(*, contas):
     for conta in contas:
         list_contas.append(conta)
     return list_contas
+
+
+def operacao_em_qual_conta(*, conta_only, contas):
+    global conta_ativa
+    numero_da_conta = conta_ativa['conta']['numero_da_conta']
+    numero_da_agencia = conta_ativa['conta']['numero_da_agencia']
+    result_conta = conta_only(
+      contas=contas,
+      numero_da_conta=numero_da_conta,
+      numero_da_agencia=numero_da_agencia
+    )
+    if result_conta == 'Conta não encontrada':
+        conta_ativa = {
+          'exists': False,
+          'conta': result_conta
+        }
+    else:
+        conta_ativa = {
+          'exists': True,
+          'conta': result_conta
+        }
+    return conta_ativa
 
 
 def is_valid_date(*, date_string):
@@ -109,13 +136,30 @@ def func_numero_da_conta(*, contas):
 
 
 def conta_active(*, conta_only, numero_da_conta, contas, numero_da_agencia):
+    global conta_ativa
     conta = conta_only(
       contas=contas,
       numero_da_conta=numero_da_conta,
       numero_da_agencia=numero_da_agencia
     )
-    print(f"CONTA ATIVA: {conta}")
-    return conta
+
+    if conta == 'Conta não encontrada':
+        conta_ativa = {
+          'exists': False,
+          'conta': conta
+        }
+    else:
+        conta_ativa = {
+          'exists': True,
+          'conta': conta
+        }
+    # return conta_ativa
+    # conta_ativa = {
+    #   'exists': True,
+    #   'conta': conta
+    # }
+    # print(f"CONTA ATIVA Func.: {conta_ativa}")
+    return conta_ativa['conta']
 
 
 def user_active(*, usuario):
@@ -145,6 +189,7 @@ def search_user_only(*, usuarios, cpf):
 
 def conta_only(*, contas, numero_da_conta, numero_da_agencia):
     result_user_only = ''
+    # print(f"CONTA ONLY Nº: {numero_da_conta}")
     for conta in contas:
         if (
           conta["numero_da_conta"] == numero_da_conta
@@ -336,13 +381,14 @@ def criar_nova_conta(
           "numero_da_conta": numero_da_conta_of,
           "usuario": usuario
         }
+        # print(f"CRIANDO NOVA CONTA: {criando_conta}")
+        contas.append(criando_conta)
         conta_active(
           conta_only=conta_only,
           numero_da_conta=criando_conta['numero_da_conta'],
           contas=contas,
           numero_da_agencia=criando_conta['numero_da_agencia']
         )
-        contas.append(criando_conta)
     return (
       f"########################\n"
       f"########################\n"
@@ -397,13 +443,17 @@ while True:
             print("Opção inválida, veja as disponíveis no 'MENU'.")
     elif login_activate is True:
         opcao_user = input(menu_after_login)
+        print(f"CONTA ATIVA WHILE: {conta_ativa}")
         if opcao_user.lower() == 'd':
             print(deposito(
               func_saldo,
               valor_deposito,
               extrato,
               depositos,
-              saques
+              saques,
+              operacao_em_qual_conta,
+              contas,
+              conta_only
             ))
         elif opcao_user.lower() == 's':
             print(saque(
@@ -414,10 +464,22 @@ while True:
               saques=saques,
               depositos=depositos,
               total_sacado_dia=total_sacado_dia,
-              aux_quantidade_saque_dia=aux_quantidade_saque_dia
+              aux_quantidade_saque_dia=aux_quantidade_saque_dia,
+              operacao_em_qual_conta=operacao_em_qual_conta,
+              contas=contas,
+              conta_only=conta_only
             ))
         elif opcao_user.lower() == 'e':
-            print(extrato(func_saldo, depositos=depositos, saques=saques))
+            print(extrato(
+              func_saldo,
+              depositos=depositos,
+              saques=saques,
+              operacao_em_qual_conta=operacao_em_qual_conta,
+              contas=contas,
+              conta_ativa=conta_ativa,
+              conta_only=conta_only
+              )
+            )
         elif opcao_user.lower() == 'n':
             print(
               criar_nova_conta(
