@@ -17,9 +17,6 @@ def aux_quantidade_saque_dia(
   saques_conta_especifica
   ):
     result_aux_saque = ''
-    # print(
-    #   f"AUX_SAQUES: {saques}\n"
-    # )
     conta_correct = operacao_em_qual_conta(
       conta_only=conta_only,
       contas=contas,
@@ -87,11 +84,6 @@ def aux_quantidade_saque_dia(
         result_aux_saque = (
           "Ainda não foi realizados saques."
         )
-    # print(
-    #   f"AUX_QUANTIDADE_DE_SAQUES: {numero_de_saques}\n"
-    #   f"AUX_TOTAL_SACADO: {total_sacado_dia}\n"
-    # )
-    # result_extrato = extrato(func_saldo, depositos=depositos, saques=saques)
     return (
       f"{result_aux_saque}\n"
     )

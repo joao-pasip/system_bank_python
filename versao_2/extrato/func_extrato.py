@@ -18,7 +18,6 @@ def extrato(
         list_extrato = []
         list_extrato = depositos + saques
         conta_extrato = []
-        print(f"EXTRATO SAQUES: {saques}")
         for operacao in list_extrato:
             if (
               operacao['conta']['numero_da_conta']

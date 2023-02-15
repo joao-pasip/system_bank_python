@@ -32,10 +32,7 @@ def saque(
               'data': saque['data'],
               'valor': saque['valor']
             }
-            # print(f"OPERAÇÃO EXTRATO: {operacao}")
             saques_conta_especifica.append(info_saque)
-    # print(f"SAQUE CONTA CORRECT: {conta_correct}")
-    print(f"SAQUE SAQUES: {saques_conta_especifica}")
     if conta_correct['exists'] is True:
         sacar = input("Quanto deseja sacar? ")
         v_saque = float(sacar)
@@ -56,9 +53,9 @@ def saque(
             result_saque = (
               f"Desculpe :(, não foi possível sacar. Saldo insuficiente.\n"
               f"################################################\n"
-              f"Você sacou da sua conta R$ {v_saque:.2f}\n"
+              f"Você tentou sacar da sua conta R$ {v_saque:.2f}\n"
               f"################################################\n"
-              f"Atualmente seu saldo é de R$ {saldo:.2f}"
+              f"Atualmente seu saldo é de R$ {saldo:.2f}\n"
             )
         elif len(saques_conta_especifica) == 0:
             saques.append({
