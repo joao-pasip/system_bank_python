@@ -22,3 +22,7 @@ Essa operação deve listar todos os depósitos e saques realizados na conta. No
 ## Pastas
 
 Cada pasta guarda uma versão do sistema.
+
+<a href="https://github.com/joao-pasip/system_bank_python/tree/main/versao_1" target="_blank">Versão 1</a>
+
+<a href="https://github.com/joao-pasip/system_bank_python/tree/main/versao_2" target="_blank">Versão 2</a>
